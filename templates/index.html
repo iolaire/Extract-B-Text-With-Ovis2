@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CSV Image Viewer</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body style="text-align: center;">
+    <div class="container mt-3">
+        <p>
+            <a href="{{ url_for('home') }}">Home</a>
+        </p>
+         <!-- Previous and Next navigation buttons -->
+        <p>
+            {% if prev_row_index is defined %}
+                <a href="{{ url_for('prev_row') }}" class="btn btn-primary mr-2">Previous</a>
+            {% endif %}
+            {% if next_row_index is defined %}
+                <a href="{{ url_for('next_row') }}" class="btn btn-primary">Next</a>
+            {% endif %}
+        </p>  
+
+        
+        <!-- Add the input field for editing -->
+        <form action="{{ url_for('home') }}" method="POST" enctype="multipart/form-data" >
+            <div class="mb-2">
+            <textarea name="edit_text" rows="10" cols="50" placeholder="{{ current_row.text }}">{{ current_row.text }}</textarea>
+        </br><button type="submit" name="save_edit_newcsv">Submit</button>
+        </form>
+
+
+        {% if current_row.image_name %}
+            <!-- Serve the image from /images/ and scale it as a thumbnail -->
+            <p>
+                <img src="{{ url_for('serve_image', filename=current_row.image_name) }}" style="max-width: 600; height: auto;" alt="{{ current_row.image_name }}" width="600">
+            </p>
+        {% endif %}
+    </div>
+</body>
+</html>
