@@ -4,36 +4,66 @@ from flask import Flask, render_template, send_from_directory, request, url_for
 app = Flask(__name__)
 app.secret_key = '23908#$*(#)'
 
-data_cache = {}
-row_index = 0  # Initialize row_index here
+def load_data():
+    try:
+        with open('output.csv', 'r') as file:
+            return csv.DictReader(file)
+    except FileNotFoundError:
+        return None
+    except Exception as e:
+        return f"Error loading data: {e}"
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
-    global row_index, data_cache
+    data = load_data()
     
-    if not data_cache:
-        with open('output.csv', 'r') as file:
-            reader = csv.DictReader(file)
-            data_cache = [row for row in reader]  # Convert to list of dictionaries
+    if not data:
+        return render_template('index.html'), 404
+    
+    # Get the current row index based on request arguments
+    try:
+        current_row_idx = int(request.args.get('r', 0)) % len(data)
+    except (TypeError, ValueError):
+        current_row_idx = 0
 
-    total_rows = len(data_cache)
+    if not data or current_row_idx < 0 or current_row_idx >= len(data):
+        return render_template('index.html', data=data, row=None, errors=[])
 
-    print(f"Total rows: {total_rows}, Row index: {row_index}")  # Add debug statement here
+    can_save = True
+    errors = []
 
-    if request.method == 'POST' and 'save_edit_newcsv' in request.form:
-        edited_text = request.form['edit_text']
-        data_cache[row_index]['text'] = edited_text
+    try:
+        if request.method == 'POST' and 'save_edit_newcsv' in request.form:
+            edited_text = request.form['edit_text']
+            new_item = None
 
-        # Save changes back to CSV
-        with open('output.csv', 'w', newline='') as file:
-            writer = csv.DictWriter(file, fieldnames=data_cache[0].keys())
-            writer.writeheader()
-            writer.writerows(data_cache)
+            # Find the current row by its text or as the next available row if no text
+            for idx, row in enumerate(data):
+                if idx == current_row_idx:  # Ensure we're updating the correct row
+                    new_item = data[idx].copy()
+                    new_item.update({'text': edited_text})
+                    data.pop(idx)
+                    data.insert(current_row_idx, new_item)
+                    break
 
-    return render_template('index.html', current_row=data_cache[row_index],
-                        prev_row_index=(row_index - 1) % total_rows if row_index > 0 else None,
-                        next_row_index=(row_index + 1) % total_rows, 
-                        row_index=row_index)
+            if not new_item:
+                errors.append("No text field found in original data!")
+
+        # Handle save functionality
+        if can_save and 'save' in request.form:
+            try:
+                with open('output.csv', 'w') as file:
+                    writer = csv.DictWriter(file, fieldnames=data[0].keys())
+                    writer.writeheader()
+                    writer.writerows(data)
+                return render_template('index.html', data=data, row=current_row_idx, errors=errors)
+            except Exception as e:
+                errors.append(f"Failed to save changes: {str(e)}")
+
+    except Exception as e:
+        errors.append(f"An error occurred: {str(e)}")
+    
+    return render_template('index.html', data=data, row=current_row_idx, errors=errors)
 
 @app.route('/images/<path:filename>')
 def serve_image(filename):
@@ -41,33 +71,36 @@ def serve_image(filename):
 
 @app.route('/prev')
 def prev_row():
-    global row_index, data_cache
-    if data_cache:
-        row_index = (row_index - 1) % len(data_cache)
-        total_rows = len(data_cache)
+    try:
+        data = load_data()
+        if not data:
+            return "No data to display", 404
+
+        current_row_idx = int(request.args.get('r', 0)) % len(data)
+        new_idx = (current_row_idx - 1) % len(data)
+        
         return render_template(
             'index.html',
-            current_row=data_cache[row_index],
-            prev_row_index=(row_index - 1) % total_rows if row_index > 0 else None,
-            next_row_index=(row_index + 1) % total_rows,
-            row_index=row_index,
-            total_rows=total_rows
+            data=data,
+            row=new_idx,
         )
+    except Exception as e:
+        return f"Error: {str(e)}"
 
 @app.route('/next')
 def next_row():
-    global row_index, data_cache
-    if data_cache:
-        row_index = (row_index + 1) % len(data_cache)
-        total_rows = len(data_cache)
+    try:
+        data = load_data()
+        if not data:
+            return "No data to display", 404
+
+        current_row_idx = int(request.args.get('r', 0)) % len(data)
+        new_idx = (current_row_idx + 1) % len(data)
+        
         return render_template(
             'index.html',
-            current_row=data_cache[row_index],
-            prev_row_index=(row_index - 1) % total_rows if row_index > 0 else None,
-            next_row_index=(row_index + 1) % total_rows,
-            row_index=row_index,
-            total_rows=total_rows
+            data=data,
+            row=new_idx,
         )
-
-if __name__ == '__main__':
-    app.run(debug=True)
+    except Exception as e:
+        return f"Error: {str(e)}"
