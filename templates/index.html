@@ -25,7 +25,7 @@
         <form action="{{ url_for('home') }}" method="POST" enctype="multipart/form-data" >
             <div class="mb-2">
             <textarea name="edit_text" rows="10" cols="50" placeholder="{{ current_row.text }}">{{ current_row.text }}</textarea>
-        </br><button type="submit" name="save_edit_newcsv">Submit</button>
+        </br><button type="submit" name="save_edit_newcsv">Submit</button> {% if current_row.text_edited == 1 %} (edited) {% endif %}
         </form>
 
 
@@ -33,6 +33,9 @@
             <!-- Serve the image from /images/ and scale it as a thumbnail -->
             <p>
                 <img src="{{ url_for('serve_image', filename=current_row.image_name) }}" style="max-width: 600; height: auto;" alt="{{ current_row.image_name }}" width="600">
+            </p>
+            <p>{{ current_row.t_file_path }}
+
             </p>
         {% endif %}
     </div>
