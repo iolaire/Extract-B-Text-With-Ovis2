@@ -2,42 +2,112 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CSV Image Viewer</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Icon Library for badges -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
-<body style="text-align: center;">
-    <div class="container mt-3">
-        <p>
-            <a href="{{ url_for('home') }}">Home</a>
-        </p>
-         <!-- Previous and Next navigation buttons -->
-        <p>
-            {% if prev_row_index is defined %}
-                <a href="{{ url_for('prev_row') }}" class="btn btn-primary mr-2">Previous</a>
-            {% endif %}
-            {% if next_row_index is defined %}
-                <a href="{{ url_for('next_row') }}" class="btn btn-primary">Next</a>
-            {% endif %}
-        </p>  
+<body style="text-align: center; margin-top: 20px;">
+    <div class="container mt-5">
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-light mb-3">
+            <div class="container">
+                <a class="navbar-brand" href="{{ url_for('home') }}">CSV Image Reviewer</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item"><a class="btn btn-primary" href="{{ url_for('home') }}">Home</a></li>
+                        <li class="nav-item">
+                            {% if prev_row_index is defined %}
+                                <a class="btn btn-primary" href="{{ url_for('prev_row') }}">Previous</a>
+                            {% endif %}
+                        </li>
+                        <li class="nav-item">
+                            {% if next_row_index is defined %}
+                                <a class="btn btn-primary" href="{{ url_for('next_row') }}">Next</a>
+                            {% endif %}
+                        </li>
 
-        
-        <!-- Add the input field for editing -->
-        <form action="{{ url_for('home') }}" method="POST" enctype="multipart/form-data" >
-            <div class="mb-2">
-            <textarea name="edit_text" rows="10" cols="50" placeholder="{{ current_row.text }}">{{ current_row.text }}</textarea>
-        </br><button type="submit" name="save_edit_newcsv">Submit</button> {% if current_row.text_edited == 1 %} (edited) {% endif %}
-        </form>
+                    </ul>
+                </div>
+            </div>
+        </nav>
 
+        <!-- Current Row Content -->
+        <div class="row justify-content-md-center mb-5">
+            <div class="col-md-8">
+                <h2 class="display-5 text-center mb-3">Current Review: {{ current_row.title }}
+                    {% if current_row.text_edited == 1 %}
+                    <span style="color: #28a745;">Edited</span>
+                    {% else %}
+                        <span style="color: hsl(356, 61%, 41%);">To Do</span>
+                    {% endif %}
+                </h2>
+                
+                {% if current_row.image_name %}
+                    <div class="mb-4">
+                        <img src="{{ url_for('serve_image', filename=current_row.image_name) }}" 
+                             class="img-fluid rounded mx-auto" 
+                             alt="{{ current_row.image_name }}">
+                    </div>
+                {% endif %}
 
-        {% if current_row.image_name %}
-            <!-- Serve the image from /images/ and scale it as a thumbnail -->
-            <p>
-                <img src="{{ url_for('serve_image', filename=current_row.image_name) }}" style="max-width: 600; height: auto;" alt="{{ current_row.image_name }}" width="600">
-            </p>
-            <p>{{ current_row.t_file_path }}
+                <!-- Text Area for Editing -->
+                <form action="{{ url_for('home') }}" method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <textarea name="edit_text"
+                                  class="form-control textareas editable-text"
+                                  rows="10"
+                                  placeholder="{{ current_row.text }}"
+                                  data-contenteditable="true">{{ current_row.text }}</textarea>
+                    </div>
+                    <div class="text-center mb-5">
+                        <button type="submit" 
+                                name="save_edit_newcsv"
+                                class="btn btn-primary edit-btn">
+                            Submit
+                        </button>
+                    </div>
+                </form>
 
-            </p>
-        {% endif %}
+                <!-- File Path Display -->
+                <div class="mt-5">
+                    <p class="text-muted mb-3">
+                        <i class="fas fa-file mt-2"></i>
+                        Current File: {{ current_row.t_file_path }}
+                    </p>
+                </div>
+                <div class="mt-5">
+                    <p class="text-muted mb-3">
+                        <i class="fas fa-file mt-2"></i>
+                        Image File: Open '{{ current_row.path }}'
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="row justify-content-center mt-5">
+            <div class="col-md-8 text-muted text-center">
+                <p>© 2025 CSV Image Reviewer. All rights reserved.</p>
+            </div>
+        </div>
     </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript for textareas -->
+    <script>
+        document.querySelectorAll('.editable-text').forEach(textarea => {
+            textarea.addEventListener('click', function() {
+                this.style.outline = 'none';
+            });
+        });
+    </script>
 </body>
 </html>

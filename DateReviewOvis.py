@@ -110,8 +110,8 @@ directory_path = '/Volumes/Gold/PhotosScannedAtLibraryImmich/'
 model, query = load_ovis2_model_and_prepare_query()
 all_paths = find_b_jpg_files(directory_path)
 
-sample_paths =  all_paths[0:3] + all_paths[11:13] 
-
+# sample_paths =  all_paths[3:6] + all_paths[13:16] 
+sample_paths = all_paths
 # Specify the path to save the CSV file
 output_csv_path = os.path.join("output.csv")
 images_subfolder = '/Volumes/Gold/python/create_folders_from_CSV/DateReviewOvis/images/'  # Define the full path to the images subfolder
@@ -119,7 +119,7 @@ images_subfolder = '/Volumes/Gold/python/create_folders_from_CSV/DateReviewOvis/
 with open(output_csv_path, mode='w', newline='') as csv_file:
     writer = csv.writer(csv_file)
     # Write the header
-    writer.writerow(["id", "path", "t_file_path", "text", "image_name"])
+    writer.writerow(["id", "path", "t_file_path", "text", "image_name","text_edited"])
 csv_file.close()
 
 print(len(sample_paths))
@@ -140,11 +140,12 @@ for idx, path in enumerate(sample_paths):
         #append the data to 
         with open(t_file_path, 'w') as text_file:
             text_file.write(text)
-            with open(output_csv_path, mode='a', newline='') as csv_file:
-                writer = csv.writer(csv_file, quoting=csv.QUOTE_MINIMAL)
-                # Write the header
-                writer.writerow([id, path, t_file_path, text, f"{base_name}.jpg"])
-            csv_file.close()
+        text_file.close()
+        with open(output_csv_path, mode='a', newline='') as csv_file:
+            writer = csv.writer(csv_file, quoting=csv.QUOTE_MINIMAL)
+            # Write the header
+            writer.writerow([id, path, t_file_path, text, f"{base_name}.jpg"])
+        csv_file.close()
 
             print(f"Text saved to {t_file_path}")
         print(f"File: {path}, Text: {text}")
