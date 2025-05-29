@@ -1,5 +1,6 @@
 import csv
 from flask import Flask, render_template, send_from_directory, request, url_for
+import pandas as pd
 
 app = Flask(__name__)
 app.secret_key = '23908#$*(#)'
@@ -11,23 +12,29 @@ row_index = 0  # Initialize row_index here
 def home():
     global row_index, data_cache
     
+
     if not data_cache:
         with open('output.csv', 'r') as file:
             reader = csv.DictReader(file)
             data_cache = [row for row in reader]  # Convert to list of dictionaries
-
     total_rows = len(data_cache)
+
+
+
 
     print(f"Total rows: {total_rows}, Row index: {row_index}")  # Add debug statement here
 
     if request.method == 'POST' and 'save_edit_newcsv' in request.form:
         edited_text = request.form['edit_text']
         data_cache[row_index]['text'] = edited_text
-        data_cache[row_index]['text_edited'] = 1
+        data_cache[row_index]['text_edited'] = '1'
         
         with open(data_cache[row_index]['t_file_path'], 'w') as f:
             f.write(edited_text)  # Write edited_text to the identified file
-        
+
+        with open(data_cache[row_index]['t_file_path'].replace('_t.txt', '_t_approved.txt'), 'w') as f:
+            f.write(edited_text)  # Write edited_text into the _t_approved files so we don't overwrite that text again
+
         # Save changes back to CSV
         with open('output.csv', 'w', newline='') as file:
             writer = csv.DictWriter(file, fieldnames=data_cache[0].keys())

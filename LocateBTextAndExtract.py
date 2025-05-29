@@ -115,7 +115,7 @@ sample_paths = all_paths
 
 # Specify the path to save the CSV file
 output_csv_path = os.path.join("output.csv")
-images_subfolder = '/Volumes/Gold/python/create_folders_from_CSV/DateReviewOvis/images/'  # Define the full path to the images subfolder
+images_subfolder = '/Volumes/Gold/python/create_folders_from_CSV/LocateBTextAndExtract/images/'  # Define the full path to the images subfolder
 
 with open(output_csv_path, mode='w', newline='') as csv_file:
     writer = csv.writer(csv_file)
@@ -127,20 +127,30 @@ print(len(sample_paths))
 for idx, path in enumerate(sample_paths):
     id = idx + 1  # Assigning an ID as index starts from 0
     # print(f"File: {path}")
-    text,exec_time = process_image_and_generate_text(path, model, query)
-    if text.strip():  # Print only non-empty text
+    base_name = os.path.splitext(os.path.basename(path))[0]
+    t_file_path = f"{os.path.dirname(path)}/{base_name}_t.txt"
+    if os.path.exists(t_file_path.replace('_t.txt', '_t_approved.txt')):
+        print(f"Skipping {path} as _t_approved file already exists")
+        
+        if os.path.exists(t_file_path):
+            with open(t_file_path, 'r') as text_file:
+                existing_text = text_file.read()
+
+        with open(output_csv_path, mode='a', newline='') as csv_file:
+            writer = csv.writer(csv_file, quoting=csv.QUOTE_MINIMAL)
+            # Write the header as edited
+            writer.writerow([id, path, t_file_path, existing_text, f"{base_name}.jpg", '1'])
+        csv_file.close()
+    else:
+        text,exec_time = process_image_and_generate_text(path, model, query)
         print(f"File: {path}, Text: {text}")
-        
-        # Create the corresponding t.txt file name
-        base_name = os.path.splitext(os.path.basename(path))[0]
-        t_file_path = f"{os.path.dirname(path)}/{base_name}_t.txt"
-        
-        #copy the image to the images subfolder for review
-        shutilcopy(path, images_subfolder)
-        
-        #append the data to 
-        with open(t_file_path, 'w') as text_file:
-            text_file.write(text)
+        if text.strip():  # Print only non-empty text
+            #copy the image to the images subfolder for review
+            shutilcopy(path, images_subfolder)
+            
+            #append the data to 
+            with open(t_file_path, 'w') as text_file:
+                text_file.write(text)
             with open(output_csv_path, mode='a', newline='') as csv_file:
                 writer = csv.writer(csv_file, quoting=csv.QUOTE_MINIMAL)
                 # Write the header

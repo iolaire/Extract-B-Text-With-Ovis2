@@ -7,7 +7,7 @@ The system is designed to handle large collections of images, particularly focus
 ## Repository Structure
 ```
 .
-├── DateReviewOvis.py          # Main script for image processing and text extraction
+├── LocateBTextAndExtract.py          # Main script for image processing and text extraction
 └── display_output_csv.py      # Utility script to view processed results in HTML format
 ```
 
@@ -40,14 +40,14 @@ export TOKENIZERS_PARALLELISM="false"
 ```
 
 ### Quick Start
-1. Configure the input directory in `DateReviewOvis.py`:
+1. Configure the input directory in `LocateBTextAndExtract.py`:
 ```python
 directory_path = '/path/to/your/images/'
 ```
 
 2. Run the text extraction process:
 ```bash
-python DateReviewOvis.py
+python LocateBTextAndExtract.py
 ```
 
 3. View the results:
@@ -58,7 +58,7 @@ python display_output_csv.py
 ### More Detailed Examples
 #### Processing a Specific Directory
 ```python
-from DateReviewOvis import find_b_jpg_files, load_ovis2_model_and_prepare_query, process_image_and_generate_text
+from LocateBTextAndExtract import find_b_jpg_files, load_ovis2_model_and_prepare_query, process_image_and_generate_text
 
 # Load the model
 model, query = load_ovis2_model_and_prepare_query()

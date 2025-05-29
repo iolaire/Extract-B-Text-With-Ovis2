@@ -41,10 +41,10 @@
         <div class="row justify-content-md-center mb-5">
             <div class="col-md-8">
                 <h2 class="display-5 text-center mb-3">Current Review: {{ current_row.title }}
-                    {% if current_row.text_edited == 1 %}
-                    <span style="color: #28a745;">Edited</span>
+                    {% if current_row.text_edited == '1' %}
+                        <span style="color: #28a745;">Edited</span>
                     {% else %}
-                        <span style="color: hsl(356, 61%, 41%);">To Do</span>
+                        <span style="color: hsl(356, 61%, 41%);">To Do</span> {{current_row.text_edited}}
                     {% endif %}
                 </h2>
                 
