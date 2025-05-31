@@ -3,29 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSV Image Viewer</title>
-    <!-- Bootstrap CSS -->
+    <title>B Image Viewer</title>
+    <!-- Link to Bootstrap CSS for styling -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Icon Library for badges -->
+    <!-- Link to Font Awesome for icons -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body style="text-align: center; margin-top: 20px;">
+    <!-- Main container with Bootstrap classes for centering and spacing -->
     <div class="container mt-5">
-        <!-- Navbar -->
+        <!-- Navigation bar -->
         <nav class="navbar navbar-expand-lg navbar-light bg-light mb-3">
             <div class="container">
+                <!-- Navbar brand/logo linking to the home page -->
                 <a class="navbar-brand" href="{{ url_for('home') }}">CSV Image Reviewer</a>
+                <!-- Button for toggling the navbar on small screens -->
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+                <!-- Navbar links that collapse on small screens -->
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ml-auto">
+                        <!-- Home link -->
                         <li class="nav-item"><a class="btn btn-primary" href="{{ url_for('home') }}">Home</a></li>
+                        <!-- Previous button, only shown if prev_row_index is defined -->
                         <li class="nav-item">
                             {% if prev_row_index is defined %}
                                 <a class="btn btn-primary" href="{{ url_for('prev_row') }}">Previous</a>
                             {% endif %}
                         </li>
+                        <!-- Next button, only shown if next_row_index is defined -->
                         <li class="nav-item">
                             {% if next_row_index is defined %}
                                 <a class="btn btn-primary" href="{{ url_for('next_row') }}">Next</a>
@@ -37,10 +44,12 @@
             </div>
         </nav>
 
-        <!-- Current Row Content -->
+        <!-- Section to display the current row's content -->
         <div class="row justify-content-md-center mb-5">
             <div class="col-md-8">
+                <!-- Heading displaying the title and edit status -->
                 <h2 class="display-5 text-center mb-3">Current Review: {{ current_row.title }}
+                    <!-- Display 'Edited' badge if text_edited is '1', otherwise 'To Do' -->
                     {% if current_row.text_edited == '1' %}
                         <span style="color: #28a745;">Edited</span>
                     {% else %}
@@ -48,6 +57,7 @@
                     {% endif %}
                 </h2>
                 
+                <!-- Display image if image_name is provided in the current row data -->
                 {% if current_row.image_name %}
                     <div class="mb-4">
                         <img src="{{ url_for('serve_image', filename=current_row.image_name) }}" 
@@ -56,15 +66,17 @@
                     </div>
                 {% endif %}
 
-                <!-- Text Area for Editing -->
+                <!-- Form for editing the text -->
                 <form action="{{ url_for('home') }}" method="POST" enctype="multipart/form-data">
                     <div class="mb-3">
+                        <!-- Textarea for displaying and editing the text -->
                         <textarea name="edit_text"
                                   class="form-control textareas editable-text"
                                   rows="10"
                                   placeholder="{{ current_row.text }}"
                                   data-contenteditable="true">{{ current_row.text }}</textarea>
                     </div>
+                    <!-- Button to submit the edited text -->
                     <div class="text-center mb-5">
                         <button type="submit" 
                                 name="save_edit_newcsv"
@@ -74,14 +86,16 @@
                     </div>
                 </form>
 
-                <!-- File Path Display -->
+                <!-- Section to display file paths -->
                 <div class="mt-5">
+                    <!-- Display the path to the current text file -->
                     <p class="text-muted mb-3">
                         <i class="fas fa-file mt-2"></i>
                         Current File: {{ current_row.t_file_path }}
                     </p>
                 </div>
                 <div class="mt-5">
+                    <!-- Display information about the associated image file path -->
                     <p class="text-muted mb-3">
                         <i class="fas fa-file mt-2"></i>
                         Image File: Open '{{ current_row.path }}'
@@ -90,7 +104,7 @@
             </div>
         </div>
 
-        <!-- Footer -->
+        <!-- Footer section -->
         <div class="row justify-content-center mt-5">
             <div class="col-md-8 text-muted text-center">
                 <p>© 2025 CSV Image Reviewer. All rights reserved.</p>
@@ -98,13 +112,16 @@
         </div>
     </div>
 
-    <!-- Bootstrap JS and dependencies -->
+    <!-- Link to Bootstrap JavaScript bundle for interactive components -->
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
     
-    <!-- Custom JavaScript for textareas -->
+    <!-- Custom JavaScript to remove outline on textarea focus -->
     <script>
+        // Select all elements with the class 'editable-text' (our textareas)
         document.querySelectorAll('.editable-text').forEach(textarea => {
+            // Add a click event listener to each textarea
             textarea.addEventListener('click', function() {
+                // When clicked, set the outline style to 'none'
                 this.style.outline = 'none';
             });
         });
